@@ -11,9 +11,9 @@ import SpriteKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
-    
-    var pathX = 0
-    var pathY = size.height / 2
+    var randomVariable = 1
+    var pathTracker: [Bool] = []
+    var path: SKSpriteNode?
     
     
     override func didMove(to view: SKView) {
@@ -38,9 +38,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     // The function to create a path
-    func path() {
+    func addpath() {
         
-        let path = SKSpriteNode(imageNamed: "Grey Square")
+        path = SKSpriteNode(imageNamed: "Grey Square")
         
         path.position = CGPoint(x: pathX, y: pathY)
         path.zPosition = 0
@@ -58,63 +58,96 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(barrier)
         barrier.setScale(0.02)
     }
-    // The randomizer to create a possible path to the end
-    for _ in 1...20 {
-    if pathX < size.width * 7 / 8 {
-
-    var randomizer = arc4randomizer(6)
-    
-    if randomizer = 0 { // Create a path square on top of the previous one
-    
-    pathY = pathY + 20
-    addChild(path)
-    
-    } else if randomizer = 1 { // Create two path squares on top of the previous one
-    
-    for doublePathPositiveY in 1..2 {
-    pathY = pathY + 20
-    addChild(path)
-    }
-    
-    } else if randomizer = 2 {  // Create a path square to the right of the previous one
-    
-    pathX = pathX + 20
-    addChild(path)
-    
-    } else if randomizer = 3 {  // Create two path squares to the right of the previous one
-    
-    for doublePathX in 1..2 {
-    pathX = pathX + 20
-    addChild(path)
-    }
-    
-    } else if randomizer = 4 { // Create a path square below of the previous one
-    
-    pathY = pathY - 20
-    addChild(path)
-    
-    } else if randomizer = 5 {
-    
-    for doublePathPositiveY in 1..2 { // Create two path squars below of the previous one
-    pathY = pathY - 20
-    addChild(path)
-    }
-    }
-    if pathY > size.height / 2 - 10 { // At the last column, if it's above the exit, then go down.
-    
-    pathY = pathY - 20
-    addChild(path)
-    
-    }
-    if pathY < size.height / 2 - 10 { // At the last column, if it's below the exit, then go up.
-    
-    pathY = pathY + 20
-    addChild(path)
-    
-    }
-    } else {
-    
-    
-    
-    }
-}
+    // The func that creates the maze
+    func makeMaze() {
+        
+        // The randomizer to create a possible path to the end
+        
+        var pathX: CGFloat = 0
+        var pathY = size.height / 2
+        var heightOfPathCheck: CGFloat = 0
+        
+        for _ in 1...30 {
+            
+            if pathX < (size.width * 7 / 9) - 1 {
+                
+                let randomizer = arc4random_uniform(6) // Randomizer: different path options to place
+                
+                if pathY < size.height/2 + size.width/2 && pathY > size.height/2 - size.width/2 {
+                   // Create a path square on top of the previous one
+                    if randomizer == 0 {
+                        
+                        pathY = pathY + size.width / 9
+                        addpath()
+                        heightOfPathCheck += 1
+                        // Create two path squares on top of the previous one
+                    } else if randomizer == 1 {
+                        
+                        for _ in 1...2 {
+                            pathY = pathY + size.width / 9
+                            addpath()
+                        }
+                        
+                        heightOfPathCheck += 2
+                        
+                        // Create a path square to the right of the previous one
+                    } else if randomizer == 2 {
+                        
+                        pathX = pathX + size.width / 9
+                        addpath()
+                        // Create two path squares to the right of the previous one
+                    } else if randomizer == 3 {
+                        
+                        for _ in 1...2 {
+                            pathX = pathX + size.width / 9
+                            addpath()
+                        }
+                        // Create a path square below of the previous one
+                    } else if randomizer == 4 {
+                        
+                        pathY = pathY - size.width / 9
+                        addpath()
+                        
+                        heightOfPathCheck -= 1
+                        
+                    } else if randomizer == 5 {
+                        // Create two path squares below of the previous one
+                        for _ in 1...2 {
+                            pathY = pathY - size.width / 9
+                            addpath()
+                        }
+                        heightOfPathCheck -= 2
+                    }
+                    // If last column & above exit, go down.
+                } else if pathY - size.height > heightOfPathCheck {
+                    
+                    pathY = pathY - size.width / 9
+                    addpath()
+                    // If last column & below exit, go up.
+                } else if pathY - size.height < heightOfPathCheck {
+                    
+                    pathY = pathY + size.width / 9
+                    addpath()
+                    
+                } // If Y Bracket
+            } // Check to make sure it stays within the parameters of the game screen.
+        } // Loop Bracket
+        
+        // Generate blocks and paths around the path to fill the area
+        for generatedSpace in 1...20 {
+            
+            let blockChoice = arc4random_uniform(2)
+            
+            if blockChoice == 0 {
+                pathX = (CGFloat(generatedSpace) - 1) * 20
+                pathY = (generatedSpace - 1) * 20
+                addpath()
+            } else {
+                pathX = (generatedSpace - 1) * 20
+                pathY = (generatedSpace - 1) * 20
+                addbarrier()
+            }
+            
+        } // GeneratedSpace Loop Bracket
+    } // func makeMaze Bracket
+} // Game Scene Class Bracket
