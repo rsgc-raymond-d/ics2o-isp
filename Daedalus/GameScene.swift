@@ -16,15 +16,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
     
-    let mazeOption1: [Bool] = [false, true, false, true, false, false, false, false, true, false, false, false, true, false, false, true, false, true, false, true, false, false, false, false, false, false, true, false, false, true, false, true, false, true, false, false, true, false, false, false, true, false, false, true, false, true, false, true, true]
+    // The different maze choices
+    let mazeOption1: [Bool] = [false, true, false, true, false, false, false,
+                               false, true, false, false, false, true, false,
+                               false, true, false, true, false, true, false,
+                               false, false, false, false, false, true, false,
+                               false, true, false, true, false, true, false,
+                               false, true, false, false, false, true, false,
+                               false, true, false, true, false, true, true]
     
-    let mazeOption2: [Bool] = [false, false, false, true, false, false, false, false, true, false, false, false, true, false, false, true, true, true, true, true, false, false, false, false, false, false, true, false, false, true, false, true, false, true, false, false, true, true, false, true, true, false, false, true, false, false, false, false, true]
+    let mazeOption2: [Bool] = [false, false, false, true, false, false, false,
+                               false, true, false, false, false, true, false,
+                               false, true, true, true, true, true, false,
+                               false, false, false, false, false, true, false,
+                               false, true, false, true, false, true, false,
+                               false, true, true, false, true, true, false,
+                               false, true, false, false, false, false, true]
     
-    let mazeOption3: [Bool] = [false, false, false, true, false, false, false, false, true, false, false, false, true, false, false, true, false, true, false, true, false, false, false, false, true, false, false, false, false, true, false, true, false, true, false, false, true, false, true, false, true, false, false, true, false, false, true, false, false]
+    let mazeOption3: [Bool] = [false, false, false, true, false, false, false,
+                               false, true, false, false, false, true, false,
+                               false, true, false, true, false, true, false,
+                               false, false, false, true, false, false, false,
+                               false, true, false, true, false, true, false,
+                               false, true, false, true, false, true, false,
+                               false, true, false, false, true, false, false]
     
-    let mazeOption4: [Bool] = [false, true, false, true, true, false, true, false, false, true, false, false, false, true, false, true, false, false, true, false, false, false, false, true, false, false, true, false, false, true, false, true, false, false, true, false, false, false, true, true, false, true, false, true, false, false, false, false, true]
+    let mazeOption4: [Bool] = [false, true, false, true, true, false, true,
+                               false, false, true, false, false, false, true,
+                               false, true, false, false, true, false, false,
+                               false, false, true, false, false, true, false,
+                               false, true, false, true, false, false, true,
+                               false, false, false, true, true, false, true,
+                               false, true, false, false, false, false, true]
     
-    let mazeOption5: [Bool] = [false, true, false, false, false, false, false, false, false, true, false, true, false, true, false, true, false, false, true, false, false, false, false, true, false, false, true, false, false, true, false, true, false, false, true, false, false, false, true, true, true, false, false, true, false, false, false, false, false]
+    let mazeOption5: [Bool] = [false, true, false, false, false, false, false,
+                               false, false, true, false, true, false, true,
+                               false, true, false, false, true, false, false,
+                               false, false, true, false, false, true, false,
+                               false, true, false, true, false, false, true,
+                               false, false, false, true, true, true, false,
+                               false, true, false, false, false, false, false]
     
     override func didMove(to view: SKView) {
         // 3
@@ -39,49 +70,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Make this class the physics contact delegate
         physicsWorld.contactDelegate = self
         
-        //        let background = SKSpriteNode(imageNamed: "Grey Square")
-        //
-        //        background.position = CGPoint(x: 0, y: size.width / 2 - (size.width / 9))
-        //        background.zPosition = -1
-        //        background.setScale(5.12)
-        //        addChild(background)
-        
         // Add the first sprite
+        // size.width/9 = 46
         
-        for CGFloat(repeatX) in mazeOption1 {
+        print(player.position)
         
-        let tile00 = SKSpriteNode(imageNamed: "Daedalus Barrier")
-        tile00.anchorPoint = CGPoint(x: repeatX * (size.width/9), y: 0)
-        tile00.position = CGPoint(x: 0, y: 0)
-        tile00.setScale(0.36833)
-        addChild(tile00)
+        let mazeChoice = arc4random_uniform(1)
+        
+        for repeatY in 1...7 {
             
+            for repeatX in 1...7 {
+                
+                if mazeChoice == 0 {
+                    
+                    var combineCoordinate = 0
+                    
+                    if mazeOption1[combineCoordinate] == false {
+                        
+                        let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
+                        barrier.anchorPoint = CGPoint(x: 0, y: 0)
+                        barrier.position = CGPoint(x: (repeatX) * (46), y: ((repeatY) * 46) + 161)
+                        barrier.setScale(0.368333333)
+                        addChild(barrier)
+                        
+                        combineCoordinate += 1
+                    } else {
+                        
+                        let path = SKSpriteNode(imageNamed: "Grey Square")
+                        path.anchorPoint = CGPoint(x: 0, y: 0)
+                        path.zPosition = 2
+                        path.position = CGPoint(x: (repeatX) * (46), y: ((repeatY) * 46) + 161)
+                        path.setScale(0.153333333)
+                        addChild(path)
+                        
+                        combineCoordinate += 1
+                    }
+                }
+                
+            }
         }
         
-        let tile02 = SKSpriteNode(imageNamed: "Grey Square")
-        tile02.anchorPoint = CGPoint(x: 0, y: 0)
-        tile02.position = CGPoint(x: 0, y: (size.width / 9) * 2)
-        tile02.setScale(0.15333)
-        addChild(tile02)
     }
-    // The function to create a path
-    func addpath() {
-        
-        path.position = CGPoint(x: pathX, y: pathY)
-        path.zPosition = 0
-        addChild(path)
-        path.setScale(0.5688888888)
-    }
-    
-    // The function to create a barrier
-    func addbarrier() {
-        
-        barrier.position = CGPoint(x: size.width / 2, y: size.width / 2)
-        barrier.zPosition = 0
-        addChild(barrier)
-        barrier.setScale(1.36533333333)
-    }
-    
-    
     
 } // Game Scene Class Bracket
