@@ -10,13 +10,14 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
-    var pathX = 0
-    var pathY = 0
     let path = SKSpriteNode(imageNamed: "Grey Square")
     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
+    let button = SKSpriteNode(imageNamed: "ArrowButton")
     
     // The different maze choices
+    
+    var realMazeOption: [Bool] = []
     
     let mazeOption1: [Bool] = [false, true, false, true, false, false, false,
                                false, true, false, false, false, true, false,
@@ -30,9 +31,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                false, true, false, false, false, true, false,
                                false, true, true, true, true, true, false,
                                false, false, false, false, false, true, false,
-                               false, true, false, true, false, true, false,
-                               false, true, true, false, true, true, false,
-                               false, true, false, false, false, false, true]
+                               false, true, false, true, false, true, true,
+                               false, false, true, false, true, true, false,
+                               false, true, false, false, false, false, false]
     
     let mazeOption3: [Bool] = [false, false, false, true, false, false, false,
                                false, true, false, false, false, true, false,
@@ -58,10 +59,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                false, false, false, true, false, true, false,
                                false, true, false, false, false, false, false]
     
+    let mazeOption6: [Bool] = [false, true, false, false, false, true, true,
+                               false, false, false, true, false, false, false,
+                               true, true, false, false, true, true, false,
+                               false, false, true, false, false, true, false,
+                               false, true, false, true, false, false, true,
+                               false, false, false, true, false, true, false,
+                               false, true, false, false, false, false, false]
+    
+    let mazeOption7: [Bool] = [false,  false,  false,  false,  false,  false,  true,
+                               false,  true,  false,  true,  true,  false,  false,
+                               false,  true,  true,  false,  false,  true,  false,
+                               false,  false,  false,  false,  true,  false,  false,
+                               false,  true,  false,  false,  false,  true,  false,
+                               false,  true,  false,  true,  true,  false,  true,
+                               false,  false,  false,  false,  false,  true,  false]
+    
     override func didMove(to view: SKView) {
-        // 3
-        player.position = CGPoint(x: size.width / 9, y: size.height * 0.5)
-        // 4
+        
+        // Player model
+        player.position = CGPoint(x: size.width / 18, y: size.height / 2)
         player.zPosition = 2
         addChild(player)
         player.setScale(0.05)
@@ -71,135 +88,60 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Make this class the physics contact delegate
         physicsWorld.contactDelegate = self
         
-        // The Barrier Block
-        
-        
-        // The Pathway Block
-        
-        
         // Inner maze constructing
         
         func createMaze() {
             
-            let mazeChoice = arc4random_uniform(5)
+            // Randomizer to create a number
+            let mazeChoice = arc4random_uniform(7)
             var combineCoordinate = -1
             
+            // Uses the random number to decide what maze to build
+            if mazeChoice == 0 {
+                realMazeOption = mazeOption1
+            } else if mazeChoice == 1 {
+                realMazeOption = mazeOption2
+            } else if mazeChoice == 2 {
+                realMazeOption = mazeOption3
+            } else if mazeChoice == 3 {
+                realMazeOption = mazeOption4
+            } else if mazeChoice == 4 {
+                realMazeOption = mazeOption5
+            } else if mazeChoice == 5 {
+                realMazeOption = mazeOption6
+            } else if mazeChoice == 6 {
+                realMazeOption = mazeOption7
+            }
+            
+            // Builds the chosen maze
             for repeatY in 1...7 {
-                
                 for repeatX in 1...7 {
                     
                     combineCoordinate += 1
                     
-                    if mazeChoice == 0 {
-                        
-                        if mazeOption1[combineCoordinate] == true {
-                            let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                            barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                            barrier.setScale(0.368333333)
-                            barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            barrier.setScale(0.368333333)
-                            addChild(barrier)
-                        } else {
-                            let path = SKSpriteNode(imageNamed: "Grey Square")
-                            path.anchorPoint = CGPoint(x: 0, y: 0)
-                            path.setScale(0.153333333)
-                            path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            addChild(path)
-                        }
-                    }
-                    
-                    if mazeChoice == 1 {
-                        
-                        if mazeOption2[combineCoordinate] == true {
-                            let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                            barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                            barrier.setScale(0.368333333)
-                            barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            barrier.setScale(0.368333333)
-                            addChild(barrier)
-                        } else {
-                            let path = SKSpriteNode(imageNamed: "Grey Square")
-                            path.anchorPoint = CGPoint(x: 0, y: 0)
-                            path.setScale(0.153333333)
-                            path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            addChild(path)
-                        }
-                    }
-                    
-                    if mazeChoice == 2 {
-                        
-                        if mazeOption3[combineCoordinate] == true {
-                            let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                            barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                            barrier.setScale(0.368333333)
-                            barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            barrier.setScale(0.368333333)
-                            addChild(barrier)
-                        } else {
-                            let path = SKSpriteNode(imageNamed: "Grey Square")
-                            path.anchorPoint = CGPoint(x: 0, y: 0)
-                            path.setScale(0.153333333)
-                            path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            addChild(path)
-                        }
-                    }
-                    
-                    if mazeChoice == 3 {
-                        
-                        if mazeOption4[combineCoordinate] == true {
-                            let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                            barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                            barrier.setScale(0.368333333)
-                            barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            barrier.setScale(0.368333333)
-                            addChild(barrier)
-                        } else {
-                            let path = SKSpriteNode(imageNamed: "Grey Square")
-                            path.anchorPoint = CGPoint(x: 0, y: 0)
-                            path.setScale(0.153333333)
-                            path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            addChild(path)
-                        }
-                    }
-                    
-                    if mazeChoice == 4 {
-                        
-                        if mazeOption5[combineCoordinate] == true {
-                            let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                            barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                            barrier.setScale(0.368333333)
-                            barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            barrier.setScale(0.368333333)
-                            addChild(barrier)
-                        } else {
-                            let path = SKSpriteNode(imageNamed: "Grey Square")
-                            path.anchorPoint = CGPoint(x: 0, y: 0)
-                            path.setScale(0.153333333)
-                            path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
-                            addChild(path)
-                        }
-                    }
-                    
-                    
-                }
-            } // Inner maze finish bracket
+                    if realMazeOption[combineCoordinate] == true {
+                        let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
+                        barrier.anchorPoint = CGPoint(x: 0, y: 0)
+                        barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
+                        barrier.setScale(0.368333333)
+                        addChild(barrier)
+                    } else {
+                        let path = SKSpriteNode(imageNamed: "Grey Square")
+                        path.anchorPoint = CGPoint(x: 0, y: 0)
+                        path.setScale(0.153333333)
+                        path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
+                        addChild(path)
+                    }}} // Inner maze finish bracket
             
             // Top and Bottom Walls
-            for lowerWall in 1...9 {
-                let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                barrier.setScale(0.368333333)
-                addChild(barrier)
-                barrier.position = CGPoint(x: (lowerWall - 1) * (46), y: 161)
-            }
-            
-            for upperWall in 1...9 {
-                let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                barrier.anchorPoint = CGPoint(x: 0, y: 0)
-                barrier.setScale(0.368333333)
-                addChild(barrier)
-                barrier.position = CGPoint(x: (upperWall - 1) * (46), y: 529)
-            }
+            for lowerUpperWalls in 1...2 {
+                for hWall in 1...9 {
+                    let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
+                    barrier.anchorPoint = CGPoint(x: 0, y: 0)
+                    barrier.setScale(0.368333333)
+                    addChild(barrier)
+                    barrier.position = CGPoint(x: (hWall - 1) * (46), y: (368 * (lowerUpperWalls - 1)) + 161)
+                }}
             
             // Side Walls
             for sideWalls in 1...2 {
@@ -211,10 +153,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                         barrier.setScale(0.368333333)
                         addChild(barrier)
                         barrier.position = CGPoint(x: (sideWalls - 1) * 368, y: 483 - ((bothWalls - 1) * 46))
-                    }
-                    
-                }
-            }
+                    }}}
             
             // Starting and ending pathways
             for startEndPaths in 1...2 {
@@ -231,13 +170,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         createMaze()
         
-        //        if player.position > 368 {
-        //
+        //        if player.position.equalTo (368) {
         //            createMaze()
-        //            player.position = CGPoint(x: size.width / 9, y: size.height * 0.5)
+        //            player.position = CGPoint(x: size.width / 18, y: size.height * 0.5)
         //
         //        }
         
+    } // DidMove Closing Bracket
+    
+    // Functions to make the player sprite move to where the mouse has clicked
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        guard let touch = touches.first else {
+            return
+        }
+        let touchLocation = touch.location(in: self)
+        movePlayer(touchLocation: touchLocation)
     }
     
+    // Function to make the player sprite follow the mouse while it remains clicked
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        guard let touch = touches.first else {
+            return
+        }
+        let touchLocation = touch.location(in: self)
+        movePlayer(touchLocation: touchLocation)
+    }
+    
+    // A function used in touchesBegan and touchesMoves to shorten the length of code needed
+    func movePlayer(touchLocation: CGPoint) {
+        
+        let destination = CGPoint(x: touchLocation.x, y: touchLocation.y)
+        let actionMove = SKAction.move(to: destination, duration: 0.00001)
+        player.run(actionMove)
+    }
 } // Game Scene Class Bracket
