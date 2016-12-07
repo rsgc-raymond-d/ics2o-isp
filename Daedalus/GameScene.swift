@@ -14,6 +14,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
     let button = SKSpriteNode(imageNamed: "ArrowButton")
+    let enemy = SKSpriteNode(imageNamed: "Enemy")
     
     // The different maze choices
     
@@ -59,7 +60,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                false, false, false, true, false, true, false,
                                false, true, false, false, false, false, false]
     
-    let mazeOption6: [Bool] = [false, true, false, false, false, true, true,
+    let mazeOption6: [Bool] = [false, true, false, false, false, true, false,
                                false, false, false, true, false, false, false,
                                true, true, false, false, true, true, false,
                                false, false, true, false, false, true, false,
@@ -67,29 +68,47 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                false, false, false, true, false, true, false,
                                false, true, false, false, false, false, false]
     
-    let mazeOption7: [Bool] = [false,  false,  false,  false,  false,  false,  true,
-                               false,  true,  false,  true,  true,  false,  false,
-                               false,  true,  true,  false,  false,  true,  false,
-                               false,  false,  false,  false,  true,  false,  false,
-                               false,  true,  false,  false,  false,  true,  false,
-                               false,  true,  false,  true,  true,  false,  true,
-                               false,  false,  false,  false,  false,  true,  false]
+    let mazeOption7: [Bool] = [false, false, false, false, false, false, true,
+                               false, true, false, true, true, false, false,
+                               false, true, true, false, false, true, false,
+                               false, false, false, false, true, false, false,
+                               false, true, false, false, false, true, false,
+                               false, true, false, true, true, false, true,
+                               false, false, false, false, false, true, false]
     
     override func didMove(to view: SKView) {
+        
+        let playerX = player.position.x
         
         // Player model
         player.position = CGPoint(x: size.width / 18, y: size.height / 2)
         player.zPosition = 2
         addChild(player)
-        player.setScale(0.05)
+        player.setScale(0.035)
         
         //Tells the game whether there will be gravity
         physicsWorld.gravity = CGVector.zero
         //Make this class the physics contact delegate
         physicsWorld.contactDelegate = self
         
-        // Inner maze constructing
         
+        func addEnemy() {
+            let enemy = SKSpriteNode(imageNamed: "Enemy")
+            enemy.position = CGPoint(x: size.width * 17 / 18, y: size.height / 2)
+            enemy.zPosition = 2
+            addChild(enemy)
+            enemy.setScale(0.01916666667)
+            
+            // Create the actions
+            let enemyX = enemy.position.x - (46*1)
+            let enemyY = enemy.position.y + (46*0)
+            
+            let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
+            enemy.run(actionMove)
+        }
+        addEnemy()
+        
+        // Inner maze constructing
         func createMaze() {
             
             // Randomizer to create a number
@@ -121,15 +140,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     
                     if realMazeOption[combineCoordinate] == true {
                         let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
+                        
                         barrier.anchorPoint = CGPoint(x: 0, y: 0)
                         barrier.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
                         barrier.setScale(0.368333333)
+                        
+                        //                        let distance = (player.position.x - barrier.position.x) + (player.position.y - barrier.position.y)
+                        //                        let darkBarrierColor = SKAction.colorize(with: SKColor.black, colorBlendFactor: 1.0, duration: 0.5)
+                        //                        let normalBarrierColor = SKAction.colorize(with: SKColor.black, colorBlendFactor: 1.0, duration: 0.5)
+                        //
+                        //                        if distance > 30 {
+                        //                            barrier.run(darkBarrierColor)
+                        //                        } else {
+                        //                            barrier.run(normalBarrierColor)
+                        //                        }
+                        
                         addChild(barrier)
                     } else {
                         let path = SKSpriteNode(imageNamed: "Grey Square")
+                        
                         path.anchorPoint = CGPoint(x: 0, y: 0)
                         path.setScale(0.153333333)
                         path.position = CGPoint(x: (repeatX) * (46), y: (-(repeatY) * 46) + 529)
+                        
+                        //                        let distance = (player.position.x - path.position.x) * (player.position.x - path.position.x) + (player.position.y - path.position.y) * (player.position.y - path.position.y)
+                        //                        let darkPathColor = SKAction.colorize(with: SKColor.black, colorBlendFactor: 1.0, duration: 0.5)
+                        //                        let normalPathColor = SKAction.colorize(with: SKColor.white, colorBlendFactor: 1.0, duration: 0.5)
+                        //
+                        //                        if distance > 30 {
+                        //                            path.run(darkPathColor)
+                        //                        } else {
+                        //                            path.run(normalPathColor)
+                        //                        }
+                        
                         addChild(path)
                     }}} // Inner maze finish bracket
             
@@ -170,12 +213,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         createMaze()
         
-        //        if player.position.equalTo (368) {
-        //            createMaze()
-        //            player.position = CGPoint(x: size.width / 18, y: size.height * 0.5)
-        //
-        //        }
-        
+        // Checking if the player has finished the maze (Doesn't loop so it only checks once)
+        repeat{
+        if player.position.x > 380 {
+            
+            player.position = CGPoint(x: size.width / 18, y: size.height * 0.5)
+            createMaze()
+        }
+        } while player.position.x > -20
     } // DidMove Closing Bracket
     
     // Functions to make the player sprite move to where the mouse has clicked
@@ -194,15 +239,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         guard let touch = touches.first else {
             return
         }
-        let touchLocation = touch.location(in: self)
-        movePlayer(touchLocation: touchLocation)
-    }
-    
-    // A function used in touchesBegan and touchesMoves to shorten the length of code needed
-    func movePlayer(touchLocation: CGPoint) {
+            let touchLocation = touch.location(in: self)
+            movePlayer(touchLocation: touchLocation)
+        }
         
-        let destination = CGPoint(x: touchLocation.x, y: touchLocation.y)
-        let actionMove = SKAction.move(to: destination, duration: 0.00001)
-        player.run(actionMove)
-    }
+        // A function used in touchesBegan and touchesMoves to shorten the length of code needed
+        func movePlayer(touchLocation: CGPoint) {
+            
+            let destination = CGPoint(x: touchLocation.x, y: touchLocation.y)
+            let actionMove = SKAction.move(to: destination, duration: 0.1)
+            player.run(actionMove)
+            print(player.position.x)
+        }
+    
 } // Game Scene Class Bracket
