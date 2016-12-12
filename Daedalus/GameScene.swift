@@ -9,13 +9,15 @@
 import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    
+
     let path = SKSpriteNode(imageNamed: "Grey Square")
     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
     let button = SKSpriteNode(imageNamed: "ArrowButton")
     let enemy = SKSpriteNode(imageNamed: "Enemy")
     let flashlight = SKSpriteNode(imageNamed: "Flashlight")
+    let completionLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
+    var mazesCompleted = 0
     
     // The different maze choices
     
@@ -166,7 +168,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(endPath)
         
         
-        print(mazeChoice)
+        // print(mazeChoice)
         
     } // Creating the maze ending brackets
     
@@ -192,13 +194,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(enemy)
         enemy.setScale(0.01916666667)
         
-        moveEnemy()
+        moveEnemyLeft()
     }
+    
     // Movement for the enemy
-    func moveEnemy() {
+    func moveEnemyLeft() {
         // Create the actions
         let enemyX = enemy.position.x - (46*1)
-        let enemyY = enemy.position.y + (46*0)
+        let enemyY = enemy.position.y
+        
+        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
+        enemy.run(actionMove)
+    }
+    
+    func moveEnemyRight() {
+        // Create the actions
+        let enemyX = enemy.position.x + (46*1)
+        let enemyY = enemy.position.y
+        
+        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
+        enemy.run(actionMove)
+    }
+    
+    func moveEnemyUp() {
+        // Create the actions
+        let enemyX = enemy.position.x
+        let enemyY = enemy.position.y + (46*1)
+        
+        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
+        enemy.run(actionMove)
+    }
+    
+    func moveEnemyDown() {
+        // Create the actions
+        let enemyX = enemy.position.x
+        let enemyY = enemy.position.y - (46*1)
         
         let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
         enemy.run(actionMove)
@@ -218,21 +248,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         addPlayer()
         
+        completionLabel.text = String(mazesCompleted)
+        completionLabel.fontColor = SKColor.brown
+        completionLabel.fontSize = 150
+        completionLabel.zPosition = 5
+        completionLabel.position = CGPoint(x: size.width - size.width/8, y: size.height / 9)
+        addChild(completionLabel)
+        
     } // DidMove Closing Bracket
     
     // Checking if the player has finished the maze
     func resetMaze() {
-            // Gets rid of everything
-            for barrier in self.children {
-                
-                //Determine Details
-                barrier.removeFromParent()
-            }
-            player.removeFromParent()
-            addPlayer()
+        // Gets rid of everything
+        for barrier in self.children {
             
-            // Creates a new maze
-            createMaze()
+            //Determine Details
+            barrier.removeFromParent()
+        }
+        player.removeFromParent()
+        flashlight.position = CGPoint(x: size.width / 18, y: size.height / 2)
+        flashlight.zPosition = 2
+        addChild(flashlight)
+        flashlight.setScale(1.4)
+        
+        // Creates a new maze
+        createMaze()
+
+        mazesCompleted += 1
+        addChild(completionLabel)
     }
     
     // Functions to make the player sprite move to where the mouse has clicked
@@ -243,8 +286,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let touchLocation = touch.location(in: self)
         movePlayer(touchLocation: touchLocation)
-        resetMaze()
-        
     }
     
     // Function to make the player sprite follow the mouse while it remains clicked
@@ -255,9 +296,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let touchLocation = touch.location(in: self)
         movePlayer(touchLocation: touchLocation)
-        
-        resetMaze()
-        
     }
     
     // A function used in touchesBegan and touchesMoves to shorten the length of code needed
@@ -265,8 +303,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let destination = CGPoint(x: touchLocation.x, y: touchLocation.y)
         let actionMove = SKAction.move(to: destination, duration: 0.3)
-        player.run(actionMove)
-        flashlight.run(actionMove)
+        player.run(actionMove, withKey: "barrierStop")
+        flashlight.run(actionMove, withKey: "barrierStop")
     }
     
     // The function that checks something 60 times a second
@@ -280,8 +318,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func checkCollisions() {
         
         // The array of all the hitable objects in the game
-        var hitBarriers: [SKSpriteNode ] = []
-        var endWin: [SKSpriteNode ] = []
+        var hitBarriers: [SKSpriteNode] = []
+        var endWin: [SKSpriteNode] = []
         
         // Finds all the obstacles
         enumerateChildNodes(withName: "barrier", using: {
@@ -298,7 +336,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             }
         })
         
-        enumerateChildNodes(withName: "barrier", using: {
+        enumerateChildNodes(withName: "endPath", using: {
             node, _ in
             
             // Get a reference to the current code
@@ -321,13 +359,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func playerHit(by barrier: SKSpriteNode) {
-        player.removeFromParent()
-        resetMaze()
         
-        player.position = CGPoint(x: size.width / 18, y: size.height / 2)
-        player.zPosition = 2
-        addChild(player)
-        player.setScale(0.035)
+        player.removeAction(forKey: "barrierStop")
+        flashlight.removeAction(forKey: "barrierStop")
+        
     }
     
     func playerWin(by endPath: SKSpriteNode) {
@@ -338,7 +373,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(player)
         player.setScale(0.035)
     }
-
+    
     
 } // Game Scene Class Bracket
 
