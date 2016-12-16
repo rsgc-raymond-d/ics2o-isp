@@ -13,11 +13,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let path = SKSpriteNode(imageNamed: "Grey Square")
     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
-    let button = SKSpriteNode(imageNamed: "ArrowButton")
     let enemy = SKSpriteNode(imageNamed: "Enemy")
     let flashlight = SKSpriteNode(imageNamed: "Flashlight")
+    let button = SKLabelNode(imageNamed: "Flashlight.Button")
     let completionLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
     var mazesCompleted = 0
+    var flashlightSize: CGFloat = 300
     
     // The different maze choices
     
@@ -117,7 +118,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if realMazeOption[combineCoordinate] == true {
                     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
-                    
                     barrier.name = "barrier"
                     barrier.anchorPoint = CGPoint(x: 0, y: 0)
                     barrier.position = CGPoint(x: blockXPosition, y: blockYPosition)
@@ -137,6 +137,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Top and Bottom Walls
         for lowerUpperWalls in 1...2 {
             for hWall in 1...9 {
+                let blockXPosition = CGFloat(hWall - 1) * blockSize
                 let blockYPosition = blockSize * 8 * CGFloat(lowerUpperWalls - 1) + yBlockSize
                 
                 let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
@@ -144,7 +145,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 barrier.anchorPoint = CGPoint(x: 0, y: 0)
                 barrier.setScale(size.width/1125)
                 addChild(barrier)
-                barrier.position = CGPoint(x: (CGFloat(hWall - 1)) * (blockSize), y: blockYPosition)
+                barrier.position = CGPoint(x: blockXPosition, y: blockYPosition)
             }}
         
         // Side Walls
@@ -152,6 +153,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             for bothWalls in 1...7 {
                 
                 if bothWalls != 4 {
+                    let blockXPosition = (CGFloat(sideWalls) - 1) * blockSize * 8
                     let blockYPosition = size.height/2 + size.width/2 - (CGFloat(bothWalls) - 1) * blockSize - blockSize * 2
                     
                     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
@@ -159,11 +161,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     barrier.anchorPoint = CGPoint(x: 0, y: 0)
                     barrier.setScale(size.width/1125)
                     addChild(barrier)
-                    barrier.position = CGPoint(x: (CGFloat(sideWalls) - 1) * blockSize * 8, y: blockYPosition)
+                    barrier.position = CGPoint(x: blockXPosition, y: blockYPosition)
                 }}}
         
         // Starting and ending pathways
-        
         let startPath = SKSpriteNode(imageNamed: "Grey Square")
         startPath.anchorPoint = CGPoint(x: 0, y: 0)
         startPath.setScale(size.width/2700)
@@ -177,7 +178,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         endPath.position = CGPoint(x: blockSize * 8 + blockSize/2, y: size.height/2)
         addChild(endPath)
         
-        
         print(mazeChoice)
         
     } // Creating the maze ending brackets
@@ -188,62 +188,73 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.position = CGPoint(x: size.width / 18, y: size.height / 2)
         player.zPosition = 2
         addChild(player)
-        player.setScale(0.035)
+        player.setScale(size.width)
         
         
         flashlight.position = CGPoint(x: size.width / 18, y: size.height / 2)
         flashlight.zPosition = 2
         addChild(flashlight)
-        flashlight.setScale(size.width*1.5/size.width)
+        flashlight.setScale(size.width/flashlightSize)
     }
+    
     // Function that adds the enemy
     func addEnemy() {
         let enemy = SKSpriteNode(imageNamed: "Enemy")
+        enemy.name = "enemy"
         enemy.position = CGPoint(x: size.width * 17 / 18, y: size.height / 2)
         enemy.zPosition = 1
-        // addChild(enemy)
-        enemy.setScale(0.01916666667)
+        addChild(enemy)
+        enemy.setScale(size.width/2400)
         
-        moveEnemyLeft()
+        enemyMovement()
+        
     }
     
     // Movement for the enemy
-    func moveEnemyLeft() {
+    func enemyMovement() {
+        var enemyDirectionX = 0
+        var enemyDirectionY = 0
+        let enemyChoice = arc4random_uniform(4)
+        
+        if enemyChoice == 0 {
+            enemyDirectionX = 1
+            
+        } else if enemyChoice == 1 {
+            enemyDirectionX = -1
+            
+        } else if enemyChoice == 2 {
+            enemyDirectionY = 1
+            
+        } else if enemyChoice == 3 {
+            enemyDirectionY = -1
+        }
+        
         // Create the actions
-        let enemyX = enemy.position.x - (46*1)
-        let enemyY = enemy.position.y
+        let enemyX = enemy.position.x + (size.width/9 * CGFloat(enemyDirectionX))
+        let enemyY = enemy.position.y + (size.width/9 * CGFloat(enemyDirectionY))
         
         let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
         enemy.run(actionMove)
     }
     
-    func moveEnemyRight() {
-        // Create the actions
-        let enemyX = enemy.position.x + (46*1)
-        let enemyY = enemy.position.y
-        
-        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
-        enemy.run(actionMove)
+    // This button doesn't work
+    func addButton() {
+        button.name = "button"
+        button.position = CGPoint(x: size.width * 2/9, y: size.width/9)
+        button.zPosition = 10
+        addChild(button)
+        button.setScale(size.width/1000)
     }
     
-    func moveEnemyUp() {
-        // Create the actions
-        let enemyX = enemy.position.x
-        let enemyY = enemy.position.y + (46*1)
-        
-        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
-        enemy.run(actionMove)
-    }
     
-    func moveEnemyDown() {
-        // Create the actions
-        let enemyX = enemy.position.x
-        let enemyY = enemy.position.y - (46*1)
-        
-        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
-        enemy.run(actionMove)
+    @IBAction func startButton(sender: AnyObject) {
+        if mazesCompleted > 9 {
+            mazesCompleted -= 10
+            flashlight.removeFromParent()
+            flashlightSize -= 10
+            addChild(flashlight)
+        }
     }
-    
     
     override func didMove(to view: SKView) {
         
@@ -258,12 +269,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         addPlayer()
         
+        addButton()
+        
+        // The parameters for displaying maze completion
         completionLabel.text = String(mazesCompleted)
         completionLabel.fontColor = SKColor.brown
         completionLabel.fontSize = size.width/6
         completionLabel.zPosition = 5
         completionLabel.position = CGPoint(x: size.width - size.width/6, y: size.height / 9)
         addChild(completionLabel)
+        
+        let button = SKLabelNode(fontNamed: "Flashlight.Button")
+        button.position = CGPoint(x: size.width * 2/9, y: size.width/9)
+        button.zPosition = 3
+        addChild(button)
         
     } // DidMove Closing Bracket
     
@@ -279,12 +298,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         flashlight.position = CGPoint(x: size.width / 18, y: size.height / 2)
         flashlight.zPosition = 2
         addChild(flashlight)
-        flashlight.setScale(1.4)
+        flashlight.setScale(size.width/300)
         
         // Creates a new maze
         createMaze()
         
-        
+        // Shows the number of mazes completed
         mazesCompleted += 1
         completionLabel.text = String(mazesCompleted/3)
         addChild(completionLabel)
@@ -297,7 +316,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             return
         }
         let touchLocation = touch.location(in: self)
-        movePlayer(touchLocation: touchLocation)
+        
+        let touchXCheck = Int(floor(Double((touchLocation.x * 9 / size.width) + size.width/9)))
+        let touchYCheck = Int(floor(Double((-touchLocation.y * 9 / size.width) + size.width/9)))
+        var touchTotal = 0
+        
+        for _ in 1...touchXCheck {
+            for _ in touchYCheck...1 {
+                touchTotal += 1
+            }
+        }
+        print(touchTotal)
+        
+        if realMazeOption[touchTotal] == false {
+            movePlayer(touchLocation: touchLocation)
+        }
     }
     
     // Function to make the player sprite follow the mouse while it remains clicked
@@ -350,9 +383,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 // what to do if they intersect
                 enemyHitBarriers.append(barrier)
             }
-            
         })
-        
+        // Finds the last block that you have to tocuch to reset the maze and the player
         enumerateChildNodes(withName: "endPath", using: {
             node, _ in
             
@@ -383,23 +415,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         player.removeAction(forKey: "barrierStop")
         flashlight.removeAction(forKey: "barrierStop")
-        
     }
     
     func enemyHit(by barrier: SKSpriteNode) {
-        
-        let enemyChoice = arc4random_uniform(4)
-        if enemyChoice == 0 {
-            
-        } else if enemyChoice == 1 {
-            moveEnemyLeft()
-        } else if enemyChoice == 2 {
-            moveEnemyRight()
-        } else if enemyChoice == 3 {
-            moveEnemyUp()
-        } else if enemyChoice == 4 {
-            moveEnemyDown()
-        }
+        enemyMovement()
     }
     
     func playerWin(by endPath: SKSpriteNode) {
@@ -408,10 +427,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         player.position = CGPoint(x: size.width / 18, y: size.height / 2)
         player.zPosition = 2
         addChild(player)
-        player.setScale(0.035)
+        player.setScale(10/size.width)
     }
     
-    
 } // Game Scene Class Bracket
-
-
