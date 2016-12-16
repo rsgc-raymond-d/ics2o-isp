@@ -18,7 +18,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let button = SKLabelNode(imageNamed: "Flashlight.Button")
     let completionLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
     var mazesCompleted = 0
-    var flashlightSize: CGFloat = 300
+    var flashlightSize: CGFloat = 350
     
     // The different maze choices
     
@@ -237,7 +237,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         enemy.run(actionMove)
     }
     
-    // This button doesn't work
+    
     func addButton() {
         button.name = "button"
         button.position = CGPoint(x: size.width * 2/9, y: size.width/9)
@@ -317,20 +317,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let touchLocation = touch.location(in: self)
         
-        let touchXCheck = Int(floor(Double((touchLocation.x * 9 / size.width) + size.width/9)))
-        let touchYCheck = Int(floor(Double((-touchLocation.y * 9 / size.width) + size.width/9)))
-        var touchTotal = 0
         
-        for _ in 1...touchXCheck {
-            for _ in touchYCheck...1 {
-                touchTotal += 1
-            }
-        }
-        print(touchTotal)
+        movePlayer(touchLocation: touchLocation)
         
-        if realMazeOption[touchTotal] == false {
-            movePlayer(touchLocation: touchLocation)
-        }
     }
     
     // Function to make the player sprite follow the mouse while it remains clicked
