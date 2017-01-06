@@ -309,8 +309,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         let actionMove = SKAction.move(to: destination, duration: realDuration)
-        player.run(actionMove)
-        flashlight.run(actionMove)
+        player.run(actionMove, withKey: "barrierStop")
+        flashlight.run(actionMove, withKey: "barrierStop")
     }
     
     // The function that checks something 60 times a second
@@ -390,7 +390,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // What to do if a player hits a barrier
     func playerHit(by barrier: SKSpriteNode) {
         
-        resetMaze()
+        player.removeAction(forKey: "barrierStop")
+        flashlight.removeAction(forKey: "barrierStop")
     }
     
     // What to do if a player hits the end block
