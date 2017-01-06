@@ -23,17 +23,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let flashlight = SKSpriteNode(imageNamed: "Flashlight")
     var flashlightSize: CGFloat = 350
     
-    let button = SKSpriteNode(imageNamed: "Flashlight.Button")
-    
-    // Timer variables
-    var elapsedTime : Int = 0
-    var startTime : Int?
-    var timer = 30
-    
     // Title variables
     var mazesCompleted = 0
     let completionLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
-    let timerLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
     
     // The different maze choices
     
@@ -244,13 +236,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         completionLabel.position = CGPoint(x: size.width - size.width/6, y: size.height / 9)
         addChild(completionLabel)
         
-        timerLabel.text = String(timer)
-        timerLabel.fontColor = SKColor.brown
-        timerLabel.fontSize = size.width/6
-        timerLabel.zPosition = 5
-        timerLabel.position = CGPoint(x: size.width - size.width/6, y: size.height / 18)
-        addChild(timerLabel)
-        
     } // DidMove Closing Bracket
     
     // Checking if the player has finished the maze
@@ -318,29 +303,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // Check for collisions between the player and barriers
         checkCollisions()
         
-        
-        // Timer that counts from 30 to zero.
-        if timer != 0 {
-            if let startTime = startTime {
-                
-                // If started, how much time has elapsed?
-                let time = Int(currentTime) - startTime
-                
-                if time != elapsedTime {
-                    elapsedTime = time
-                    
-                    print(timer)
-                    
-                    timer -= 1
-                }
-                
-            } else {
-                // If not started, set the start time
-                startTime = Int(currentTime) - elapsedTime
-                timerLabel.text = String(timer)
-                addChild(timerLabel)
-            }
-        }
     }
     
     // This function checks for collisions
@@ -411,8 +373,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         mazesCompleted += 1
         completionLabel.text = String(mazesCompleted/6)
         addChild(completionLabel)
-        
-        timer = 30
     }
     
 } // Game Scene Class Bracket
