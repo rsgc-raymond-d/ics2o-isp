@@ -10,15 +10,30 @@ import SpriteKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    // Maze sprites
     let path = SKSpriteNode(imageNamed: "Grey Square")
     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
+    
+    // Moving sprites
     let player = SKSpriteNode(imageNamed: "Daedalus Sprite")
     let enemy = SKSpriteNode(imageNamed: "Enemy")
+    
+    
+    // Flashlight
     let flashlight = SKSpriteNode(imageNamed: "Flashlight")
-    let button = SKLabelNode(imageNamed: "Flashlight.Button")
-    let completionLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
-    var mazesCompleted = 0
     var flashlightSize: CGFloat = 350
+    
+    let button = SKSpriteNode(imageNamed: "Flashlight.Button")
+    
+    // Timer variables
+    var elapsedTime : Int = 0
+    var startTime : Int?
+    var timer = 30
+    
+    // Title variables
+    var mazesCompleted = 0
+    let completionLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
+    let timerLabel = SKLabelNode(fontNamed: "Diogenes-Bold")
     
     // The different maze choices
     
@@ -80,14 +95,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                                false, true, false, true, true, false, true,
                                false, false, false, false, false, true, false]
     
+    let mazeOption8: [Bool] = [false, false, false, false, false, false, false,
+                               false, true, true, true, true, true, false,
+                               false, false, false, false, false, false, true,
+                               false, true, true, true, true, true, false,
+                               false, false, false, false, false, false, false,
+                               false, true, true, true, true, true, false,
+                               false, false, false, false, false, false, true]
+    
     // Inner maze constructing
     func createMaze() {
         
         let blockSize = size.width/9
         let yBlockSize = size.height/2 - size.width/2
         
-        // Randomizer to create a number
-        let mazeChoice = arc4random_uniform(7)
+        
+        
+        // Randomizer to create a number to choose the maze
+        let mazeChoice = arc4random_uniform(8)
         var combineCoordinate = -1
         
         // Uses the random number to decide what maze to build
@@ -105,6 +130,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             realMazeOption = mazeOption6
         } else if mazeChoice == 6 {
             realMazeOption = mazeOption7
+        } else if mazeChoice == 7 {
+            realMazeOption = mazeOption8
         }
         
         // Builds the chosen maze
@@ -118,11 +145,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 
                 if realMazeOption[combineCoordinate] == true {
                     let barrier = SKSpriteNode(imageNamed: "Daedalus Barrier")
+                    
                     barrier.name = "barrier"
                     barrier.anchorPoint = CGPoint(x: 0, y: 0)
                     barrier.position = CGPoint(x: blockXPosition, y: blockYPosition)
                     barrier.setScale(size.width/1125)
-                    
                     addChild(barrier)
                 } else {
                     let path = SKSpriteNode(imageNamed: "Grey Square")
@@ -190,86 +217,24 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(player)
         player.setScale(size.width)
         
-        
         flashlight.position = CGPoint(x: size.width / 18, y: size.height / 2)
         flashlight.zPosition = 2
         addChild(flashlight)
         flashlight.setScale(size.width/flashlightSize)
-    }
-    
-    // Function that adds the enemy
-    func addEnemy() {
-        let enemy = SKSpriteNode(imageNamed: "Enemy")
-        enemy.name = "enemy"
-        enemy.position = CGPoint(x: size.width * 17 / 18, y: size.height / 2)
-        enemy.zPosition = 1
-        addChild(enemy)
-        enemy.setScale(size.width/2400)
         
-        enemyMovement()
-        
-    }
-    
-    // Movement for the enemy
-    func enemyMovement() {
-        var enemyDirectionX = 0
-        var enemyDirectionY = 0
-        let enemyChoice = arc4random_uniform(4)
-        
-        if enemyChoice == 0 {
-            enemyDirectionX = 1
-            
-        } else if enemyChoice == 1 {
-            enemyDirectionX = -1
-            
-        } else if enemyChoice == 2 {
-            enemyDirectionY = 1
-            
-        } else if enemyChoice == 3 {
-            enemyDirectionY = -1
-        }
-        
-        // Create the actions
-        let enemyX = enemy.position.x + (size.width/9 * CGFloat(enemyDirectionX))
-        let enemyY = enemy.position.y + (size.width/9 * CGFloat(enemyDirectionY))
-        
-        let actionMove = SKAction.move(to: CGPoint(x: enemyX, y: enemyY), duration: TimeInterval(1))
-        enemy.run(actionMove)
-    }
-    
-    
-    func addButton() {
-        button.name = "button"
-        button.position = CGPoint(x: size.width * 2/9, y: size.width/9)
-        button.zPosition = 10
-        addChild(button)
-        button.setScale(size.width/1000)
-    }
-    
-    
-    @IBAction func startButton(sender: AnyObject) {
-        if mazesCompleted > 9 {
-            mazesCompleted -= 10
-            flashlight.removeFromParent()
-            flashlightSize -= 10
-            addChild(flashlight)
-        }
     }
     
     override func didMove(to view: SKView) {
+        
+        let scene = SKScene(size: frame.size)
         
         //Tells the game whether there will be gravity
         physicsWorld.gravity = CGVector.zero
         //Make this class the physics contact delegate
         physicsWorld.contactDelegate = self
-        
-        addEnemy()
+        scene.physicsBody = SKPhysicsBody(edgeLoopFrom: scene.frame)
         
         createMaze()
-        
-        addPlayer()
-        
-        addButton()
         
         // The parameters for displaying maze completion
         completionLabel.text = String(mazesCompleted)
@@ -279,10 +244,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         completionLabel.position = CGPoint(x: size.width - size.width/6, y: size.height / 9)
         addChild(completionLabel)
         
-        let button = SKLabelNode(fontNamed: "Flashlight.Button")
-        button.position = CGPoint(x: size.width * 2/9, y: size.width/9)
-        button.zPosition = 3
-        addChild(button)
+        timerLabel.text = String(timer)
+        timerLabel.fontColor = SKColor.brown
+        timerLabel.fontSize = size.width/6
+        timerLabel.zPosition = 5
+        timerLabel.position = CGPoint(x: size.width - size.width/6, y: size.height / 18)
+        addChild(timerLabel)
         
     } // DidMove Closing Bracket
     
@@ -294,19 +261,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //Determine Details
             barrier.removeFromParent()
         }
-        player.removeFromParent()
+        
         flashlight.position = CGPoint(x: size.width / 18, y: size.height / 2)
         flashlight.zPosition = 2
-        addChild(flashlight)
-        flashlight.setScale(size.width/300)
+        
         
         // Creates a new maze
         createMaze()
-        
-        // Shows the number of mazes completed
-        mazesCompleted += 1
-        completionLabel.text = String(mazesCompleted/3)
-        addChild(completionLabel)
     }
     
     // Functions to make the player sprite move to where the mouse has clicked
@@ -317,13 +278,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         let touchLocation = touch.location(in: self)
         
-        
         movePlayer(touchLocation: touchLocation)
         
     }
     
     // Function to make the player sprite follow the mouse while it remains clicked
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+    func moveBy(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         guard let touch = touches.first else {
             return
@@ -336,15 +296,51 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func movePlayer(touchLocation: CGPoint) {
         
         let destination = CGPoint(x: touchLocation.x, y: touchLocation.y)
-        let actionMove = SKAction.move(to: destination, duration: 0.3)
-        player.run(actionMove, withKey: "barrierStop")
-        flashlight.run(actionMove, withKey: "barrierStop")
+        
+        // Makes the player always go at the same speed
+        let YDuration = (Int(destination.y - player.position.y)^2)
+        let XDuration = (Int(destination.x - player.position.x)^2)
+        var realDuration = Double(YDuration + XDuration) / 64
+        
+        
+        // Makes sure the duration is always positive
+        if realDuration < 0 {
+            realDuration = realDuration - (2 * realDuration)
+        }
+        
+        let actionMove = SKAction.move(to: destination, duration: realDuration)
+        player.run(actionMove)
+        flashlight.run(actionMove)
     }
     
     // The function that checks something 60 times a second
     override func update(_ currentTime: TimeInterval) {
         // Check for collisions between the player and barriers
         checkCollisions()
+        
+        
+        // Timer that counts from 30 to zero.
+        if timer != 0 {
+            if let startTime = startTime {
+                
+                // If started, how much time has elapsed?
+                let time = Int(currentTime) - startTime
+                
+                if time != elapsedTime {
+                    elapsedTime = time
+                    
+                    print(timer)
+                    
+                    timer -= 1
+                }
+                
+            } else {
+                // If not started, set the start time
+                startTime = Int(currentTime) - elapsedTime
+                timerLabel.text = String(timer)
+                addChild(timerLabel)
+            }
+        }
     }
     
     // This function checks for collisions
@@ -352,7 +348,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // The array of all the hitable objects in the game
         var playerHitBarriers: [SKSpriteNode] = []
-        var enemyHitBarriers: [SKSpriteNode] = []
         var endWin: [SKSpriteNode] = []
         
         // Finds all the obstacles
@@ -367,11 +362,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 // what to do if they intersect
                 playerHitBarriers.append(barrier)
             }
-            
-            if barrier.frame.intersects(self.enemy.frame) {
-                // what to do if they intersect
-                enemyHitBarriers.append(barrier)
-            }
         })
         // Finds the last block that you have to tocuch to reset the maze and the player
         enumerateChildNodes(withName: "endPath", using: {
@@ -379,6 +369,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // Get a reference to the current code
             let endPath = node as! SKSpriteNode
+            
             if endPath.frame.intersects(self.player.frame) {
                 
                 // what to do if they intersect
@@ -391,32 +382,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             playerHit(by: barrier)
         }
         
-        for barrier in enemyHitBarriers {
-            enemyHit(by: barrier)
-        }
-        
         for endPath in endWin {
             playerWin(by: endPath)
         }
     }
     
+    // What to do if a player hits a barrier
     func playerHit(by barrier: SKSpriteNode) {
         
-        player.removeAction(forKey: "barrierStop")
-        flashlight.removeAction(forKey: "barrierStop")
+        resetMaze()
     }
     
-    func enemyHit(by barrier: SKSpriteNode) {
-        enemyMovement()
-    }
-    
+    // What to do if a player hits the end block
     func playerWin(by endPath: SKSpriteNode) {
         resetMaze()
         
         player.position = CGPoint(x: size.width / 18, y: size.height / 2)
         player.zPosition = 2
         addChild(player)
-        player.setScale(10/size.width)
+        player.setScale(size.width/15000)
+        
+        
+        flashlight.position = CGPoint(x: size.width / 18, y: size.height / 2)
+        addChild(flashlight)
+        
+        // Shows the number of mazes completed
+        mazesCompleted += 1
+        completionLabel.text = String(mazesCompleted/6)
+        addChild(completionLabel)
+        
+        timer = 30
     }
     
 } // Game Scene Class Bracket
